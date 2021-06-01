@@ -72,8 +72,7 @@ clockin.click()
 
 enter = WebDriverWait(browser, 3).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="clokInClockout"]/div/div/div[2]/div[3]/button')))
 enter.click()
-
-browser.quit()    
+    
 logger.info('marked attendance')
 
 

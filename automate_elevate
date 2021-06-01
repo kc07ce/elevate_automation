@@ -1,22 +1,16 @@
 #!/bin/bash
-
+set -e
 SCRIPT=$(readlink -f "$0")
 # Absolute path this script is in, thus /home/user/bin
 SCRIPTPATH=$(dirname "$SCRIPT")
 
-if [$1=='--disable']
-then 
-   crontab -r
-   echo 'Removed the automation'
-   exit
-fi
 echo 'Installing packages and chromedriver'
-sudo cp $SCRIPTPATH/chromedriver /usr/bin/
-pip install -U selenium
+sudo cp -f  $SCRIPTPATH/chromedriver /usr/bin/
+pip install selenium
 
 echo '------------------------------------------'
 
-rm automate.conf > automate.log 2>&1
+rm -f automate.conf
 echo 'Enter elevate email:'
 read username
 echo 'Enter elevate password:'
@@ -35,10 +29,9 @@ echo clockout minute
 read om
 
 #write out current crontab
-crontab -r >> automate.log 2>&1
 crontab -l > mycron
 #echo new cron into cron file
-echo "$im $ih * * * /usr/bin/python $SCRIPTPATH/script.py >> $SCRIPTPATH/automate.log 2>&1" >> mycron
+echo "$im $ih * * * /usr/bin/python $SCRIPTPATH/script.py >> $SCRIPTPATH/automate.log 2>&1" > mycron
 echo "$om $oh * * * /usr/bin/python $SCRIPTPATH/script.py >> $SCRIPTPATH/automate.log 2>&1" >> mycron
 #install new cron file
 crontab mycron
