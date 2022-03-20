@@ -6,7 +6,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from keyring.errors import PasswordDeleteError
 
 clockinFlag = sys.argv[1]
 
@@ -48,7 +47,9 @@ option.add_argument("--height=1440")
 option.add_argument('headless')
 
 # login
-browser = webdriver.Chrome(options=option)
+chromedriver_path = os.path.join(sys.path[0], "chromedriver")
+print(chromedriver_path)
+browser = webdriver.Chrome(os.path.join(sys.path[0], "chromedriver"), options=option)
 browser.get("https://elevate.peoplestrong.com/altLogin.jsf")
 username = browser.find_element_by_id('loginForm:username12')
 username.send_keys(usrname)
@@ -70,7 +71,7 @@ try:
         EC.element_to_be_clickable((By.XPATH, xpath)))
     ooo.click()
 except Exception as e:
-    logger.info("ooo not present: "+e)
+    logger.info("ooo not present: "+str(e))
 
 logger.info(clockinFlag)
 # clockin/clockout

@@ -4,9 +4,45 @@ SCRIPT=$(readlink -f "$0")
 # Absolute path this script is in, thus /home/user/bin
 SCRIPTPATH=$(dirname "$SCRIPT")
 
-echo 'Installing packages and chromedriver'
-sudo cp -f  $SCRIPTPATH/chromedriver /usr/bin/
-pip install selenium
+#finding machine
+unameOut="$(uname -s)"
+case "${unameOut}" in
+    Linux*)     machine=Linux;;
+    Darwin*)    machine=Mac;;
+esac
+echo ${machine}
+
+echo 'Installing Selenium'
+if [[ "$machine" = "Mac" ]]
+then
+    pip3 install --upgrade pip
+    pip3 install selenium
+    #deleting attribute on chromedriver so that python can access it
+    xattr -c chromedriver
+    #moving current directory to root
+    # FILE="$SCRIPTPATH/.copy"
+    # SYNCONF="/etc/synthetic.conf"
+ 
+    # #creating synthetic.conf if doesn't exist
+    # if test -f "$SYNCONF"
+    # then
+	# echo "synthetic conf file exists in etc"
+    # else
+ 	# echo "synthetic conf file doesn't exist. Creating one"
+	# sudo touch /etc/synthetic.conf
+    # fi
+    
+    # if test -f "$FILE" 
+    # then
+    # 	sudo cp $FILE /etc/synthetic.conf
+    # else
+	# sudo cp /etc/synthetic.conf $FILE
+    # fi
+    # sudo -- sh -c "echo 'elevate_automation	$SCRIPTPATH' >> /etc/synthetic.conf"
+else
+    pip install selenium
+fi
+    
 
 echo '------------------------------------------'
 
@@ -33,10 +69,24 @@ read om
 echo "Clocking in at $ih:$im"
 echo "Clocking out at $oh:$om"
 #echo new cron into cron file
-echo "$im $ih * * * /usr/bin/python3 $SCRIPTPATH/script.py 1 >> $SCRIPTPATH/automate.log 2>&1" > mycron
-echo "$om $oh * * * /usr/bin/python3 $SCRIPTPATH/script.py 0 >> $SCRIPTPATH/automate.log 2>&1" >> mycron
+if [[ "$machine" = "Linux" ]]
+then
+    echo "$im $ih * * * /usr/bin/python3 $SCRIPTPATH/script.py 1 >> $SCRIPTPATH/automate.log 2>&1" > mycron
+    echo "$om $oh * * * /usr/bin/python3 $SCRIPTPATH/script.py 0 >> $SCRIPTPATH/automate.log 2>&1" >> mycron
+fi
+if [[ "$machine" = "Mac" ]]
+then
+    echo "$im $ih * * * /usr/bin/python3 $SCRIPTPATH/script.py 1 >> $SCRIPTPATH/automate.log 2>&1" > mycron
+    echo "$om $oh * * * /usr/bin/python3 $SCRIPTPATH/script.py 0 >> $SCRIPTPATH/automate.log 2>&1" >> mycron
+fi
 #install new cron file
 crontab mycron
 rm mycron
 echo 'Done'
 
+#Restarting mac to set synthetic link on /elevate_automation directory
+#if [[ "$machine" = "Mac" ]]
+#then
+    #echo "Restarting mac to set synthetic link on /elevate_automation directory"
+    #sudo shutdown -r now
+#fi
